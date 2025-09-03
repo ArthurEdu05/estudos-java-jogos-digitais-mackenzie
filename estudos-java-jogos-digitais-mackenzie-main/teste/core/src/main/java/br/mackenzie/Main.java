@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.Array;
 
 /**
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all
@@ -24,11 +25,18 @@ public class Main implements ApplicationListener {
     Sprite naveSprite;
     Texture backgroundTexture;
     Vector2 touchPos;
+    Texture meteorTexture;
+    Array<Sprite> meteorSprites;
+    float meteorTimer;
+    //Variáveis para caso de derrota
+    boolean gameOver;
+    Texture gameOverTexture;
 
     @Override
     public void create() {
         naveTexture = new Texture("nave.png");
         backgroundTexture = new Texture("background.jpg");
+        meteorTexture = new Texture("meteor.png");
         spriteBatch = new SpriteBatch();
         viewport = new FitViewport(8, 5);
 
@@ -37,6 +45,9 @@ public class Main implements ApplicationListener {
 
         touchPos = new Vector2();
         
+        meteorSprites = new Array<>();
+
+        gameOverTexture = new Texture("gameover.png");
     }
 
     @Override
@@ -60,7 +71,7 @@ public class Main implements ApplicationListener {
     }
 
     private void input() {
-        float speed = 5f;
+        float speed = 3f;
         float delta = Gdx.graphics.getDeltaTime();
 
         if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
@@ -82,6 +93,7 @@ public class Main implements ApplicationListener {
     }
 }
     private void logic() {
+        if (gameOver) return; //condição de derrota
         float worldWidth = viewport.getWorldWidth();
         float naveWidth = naveSprite.getWidth();
 
@@ -89,6 +101,22 @@ public class Main implements ApplicationListener {
         float naveHeight = naveSprite.getHeight();
         naveSprite.setX(MathUtils.clamp(naveSprite.getX(), 0, worldWidth - naveWidth));
         naveSprite.setY(MathUtils.clamp(naveSprite.getY(), 0, worldHeight - naveHeight));
+
+        float delta = Gdx.graphics.getDeltaTime();
+        for (Sprite meteorSprite : meteorSprites){
+            meteorSprite.translateY(-2.5f * delta);
+            //em caso de colisão há derrota!
+            if (meteorSprite.getBoundingRectangle().overlaps(naveSprite.getBoundingRectangle())){
+                gameOver = true;
+            }
+        }
+
+        meteorTimer += delta;
+        if(meteorTimer > 1.5f){
+            meteorTimer = 0;
+            createMeteor();
+        }
+
     }
 
     private void draw() {
@@ -100,11 +128,33 @@ public class Main implements ApplicationListener {
         float worldWidth = viewport.getWorldWidth();
         float worldHeight = viewport.getWorldHeight();
         spriteBatch.draw(backgroundTexture, 0,0, worldWidth, worldHeight);
-
+        //nave some em caso de colisão e derrota
+        if(!gameOver){
         naveSprite.draw(spriteBatch);
+        }
+        for(Sprite meteorSprite : meteorSprites){
+            meteorSprite.draw(spriteBatch);
+        }
+        // caso haja derrota, imprime img de game over no centro da tela
+        if(gameOver){
+            float imgWidth = 4f;
+            float imgHeight = 2f;
+            spriteBatch.draw(gameOverTexture, (worldWidth - imgWidth) /2, (worldHeight - imgHeight) /2 , imgWidth, imgHeight);
+        }
         spriteBatch.end();
+    }
 
-        
+    private void createMeteor(){
+        float meteorWidth = 1;
+        float meteorHeight = 1;
+        float worldWidth = viewport.getWorldWidth();
+        float worldHeight = viewport.getWorldHeight();
+
+        Sprite meteorSprite = new Sprite(meteorTexture);
+        meteorSprite.setSize(meteorWidth, meteorHeight);
+        meteorSprite.setX(MathUtils.random(0f, worldWidth - meteorWidth));
+        meteorSprite.setY(worldHeight);
+        meteorSprites.add(meteorSprite);
     }
 
     @Override
@@ -120,6 +170,7 @@ public class Main implements ApplicationListener {
     @Override
     public void dispose() {
         // Destroy application's resources here.
+        
     }
 }
 
