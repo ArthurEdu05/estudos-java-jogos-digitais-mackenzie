@@ -25,6 +25,7 @@ Este projeto consolida todos esses tópicos por meio de um jogo funcional com mo
 
 O jogo segue a lógica clássica do **Asteroids**:
 
+- O **objetivo** é pegar cada vez mais **pontos**.
 - O jogador controla uma nave espacial em um ambiente 2D.  
 - Asteroides diversos e itens de Boost surgem e se movimentam pelo cenário com física simples.    
 - Asteroides e itens desaparecem ao serem atingidos e cada um possue sua lógica de efeito.  
@@ -32,6 +33,8 @@ O jogo segue a lógica clássica do **Asteroids**:
   - Nave e asteroides diversos 
   - Nave e itens benéficos  
 - Sons são reproduzidos para ações e colisões.
+
+
 
 ---
 
